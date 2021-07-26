@@ -32,7 +32,7 @@ public class CharacterServiceTest {
 
     @Test
     public void shouldReturnAListOfCharacters() {
-        List<Character> characterListMock = getCharacterList();
+        List<Character> characterListMock = Arrays.asList(getCharacterHarry(), getCharacterHermione());
 
         Mockito.when(this.characterRepository.findAll()).thenReturn(characterListMock);
 
@@ -59,7 +59,7 @@ public class CharacterServiceTest {
 
     @Test
     public void shouldReturnACharacterById() {
-        Character characterMock = getCharacter();
+        Character characterMock = getCharacterHarry();
 
         Mockito.when(this.characterRepository.findById(Mockito.anyString())).thenReturn(Optional.of(characterMock));
 
@@ -77,7 +77,7 @@ public class CharacterServiceTest {
 
     @Test
     public void shouldReturnACharacterByHouse() {
-        List<Character> characterListMock = getCharacterList();
+        List<Character> characterListMock = Arrays.asList(getCharacterHarry(), getCharacterHermione());
 
         Mockito.when(this.characterRepository.findByHouse(Mockito.anyString())).thenReturn(Optional.of(characterListMock));
 
@@ -96,28 +96,44 @@ public class CharacterServiceTest {
     @Test
     public void shouldInsertACharacter() {
         Mockito.when(this.houseService.findById(Mockito.anyString())).thenReturn(getHouse());
-
         this.characterService.insert(getCharacterRequest());
-
+        Mockito.verify(characterRepository, Mockito.times(1)).save(Mockito.any(Character.class));
     }
 
-    private CharacterRequest getCharacterRequest(){
+    @Test
+    public void shouldUpdateACharacter() {
+        String characterId = "60fb735788c44265c16fbb16";
+        Mockito.when(this.characterRepository.findById(characterId)).thenReturn(Optional.of(getCharacterHarry()));
+        Mockito.when(this.houseService.findById(Mockito.anyString())).thenReturn(getHouse());
+
+        CharacterRequest request = new CharacterRequest("Ronald Bilius Weasley", "student", "Hogwarts School of Witchcraft and Wizardry", "Jack Russell Terrier", "60fb6217995ca741adcec02d");
+
+        this.characterService.update(characterId, request);
+
+        Mockito.verify(characterRepository, Mockito.times(1)).save(Mockito.any(Character.class));
+    }
+
+    @Test
+    public void shoulDeleteCharacterById() {
+        String id = "60fb735788c44265c16fbb16";
+
+        this.characterService.deleteById(id);
+
+        Mockito.verify(characterRepository, Mockito.times(1)).deleteById(id);
+    }
+
+    private CharacterRequest getCharacterRequest() {
         return new CharacterRequest("Harry Potter", "student", "Hogwarts School of Witchcraft and Wizardry", "stag", "60fb6217995ca741adcec02d");
     }
-    private Character getCharacter() {
+
+    private Character getCharacterHarry() {
         return new Character("60fb735788c44265c16fbb16",
                 "Harry Potter", "student", "Hogwarts School of Witchcraft and Wizardry", "stag", getHouse());
     }
 
-    private List<Character> getCharacterList() {
-        House house = getHouse();
-        Character harry = new Character("60fb735788c44265c16fbb16",
-                "Harry Potter", "student", "Hogwarts School of Witchcraft and Wizardry", "stag", house);
-
-        Character hermione = new Character("8e4a081140924fa5ab9d542e",
-                "Hermione Granger", "student", "Hogwarts School of Witchcraft and Wizardry", "otter", house);
-
-        return Arrays.asList(harry, hermione);
+    private Character getCharacterHermione() {
+        return new Character("8e4a081140924fa5ab9d542e",
+                "Hermione Granger", "student", "Hogwarts School of Witchcraft and Wizardry", "otter", getHouse());
     }
 
     private House getHouse() {
