@@ -4,4 +4,3 @@ spring:
       user: root
       password: root
       uri: mongodb://localhost:27017/dextra
-      auto-index-creation: true
